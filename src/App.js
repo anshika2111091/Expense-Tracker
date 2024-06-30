@@ -8,9 +8,18 @@ import Transactions from './components/Transactions';
 import {useState,useEffect} from "react";
 
 function App() {
-  const [bal,setbal]=useState(0);
-  const [inc,setinc]=useState(0);
-  const [exp,setexp]=useState(0);
+  const [bal, setbal] = useState(() => {
+    const balance = localStorage.getItem("balance");
+    return balance ? Number(balance) : 0;
+  });
+  const [inc, setinc] = useState(() => {
+    const income = localStorage.getItem("income");
+    return income ? Number(income) : 0;
+  });
+  const [exp, setexp] = useState(() => {
+    const expense = localStorage.getItem("expense");
+    return expense ? Number(expense) : 0;
+  });
   const [text,settext]=useState("");
   const [amt,setamt]=useState("");
   const [items,setitems]=useState(() => {
@@ -19,21 +28,33 @@ function App() {
   });
   useEffect(()=>{
     localStorage.setItem("expenselist",JSON.stringify(items));
+    localStorage.setItem("balance",bal.toString());
+    localStorage.setItem("income",inc.toString());
+    localStorage.setItem("expense",exp.toString());
     
-  },[items])
+  },[items, bal, inc, exp])
 
-  useEffect(()=>{
+  useEffect(()=>
+    {
+
     const data=localStorage.getItem("expenselist");
     if (data) {
       setitems(JSON.parse(data));
+      setbal(Number(localStorage.getItem("balance"))|| 0);
+      setinc(Number(localStorage.getItem("income")) || 0);
+      setexp(Number(localStorage.getItem("expense"))|| 0);
+     
     }
     
   },[])
 
   const handlesubmit=(e)=>{
     e.preventDefault();
-    if(text==="" || amt==="")
+    if(text==="" || amt===""){
       alert("Fill the fields");
+      return;
+    }
+      
     const id= (items.length)>0 ? items[items.length -1].id+1:1;
     const newitem={id,text,value:Number(amt)};
     setitems([...items,newitem]);
